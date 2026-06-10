@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HR Wegenwacht – NLwerktaanwerk</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&family=Montserrat:wght@700;800&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: #f4f6f9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  .chat-wrapper {
+    width: 100%;
+    max-width: 500px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.13);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    height: 680px;
+  }
+  .chat-header {
+    background: #fff;
+    border-bottom: 3px solid #F47920;
+    padding: 14px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-shrink: 0;
+  }
+  .logo {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    line-height: 1;
+  }
+  .logo .nl { color: #F47920; }
+  .logo .werkt { color: #003082; }
+  .logo .aan { color: #F47920; border-bottom: 3px solid #003082; padding-bottom: 1px; }
+  .logo .werk2 { color: #003082; }
+  .header-right { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; }
+  .badge { background: #003082; color: #fff; font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .status { display: flex; align-items: center; gap: 4px; font-size: 11px; color: #555; margin-top: 4px; }
+  .status-dot { width: 7px; height: 7px; background: #22c55e; border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+  .chat-messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; }
+  .chat-messages::-webkit-scrollbar { width: 4px; }
+  .chat-messages::-webkit-scrollbar-thumb { background: #ddd; border-radius: 4px; }
+  .msg { display: flex; gap: 10px; animation: fadeUp 0.3s ease; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .msg.user { flex-direction: row-reverse; }
+  .avatar { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 2px; }
+  .avatar.bot { background: #003082; color: #fff; }
+  .avatar.user { background: #F47920; color: #fff; }
+  .bubble { max-width: 80%; padding: 10px 14px; border-radius: 14px; font-size: 14px; line-height: 1.5; color: #1a1a1a; }
+  .msg.bot .bubble { background: #f0f4fb; border-bottom-left-radius: 4px; }
+  .msg.user .bubble { background: #F47920; color: #fff; border-bottom-right-radius: 4px; }
+  .case-card { margin-top: 10px; border-radius: 10px; overflow: hidden; border: 1px solid #dde2eb; background: #fff; text-decoration: none; display: block; transition: box-shadow 0.2s; }
+  .case-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+  .case-card img { width: 100%; height: 120px; object-fit: cover; display: block; }
+  .case-card-body { padding: 10px 12px; }
+  .case-card-label { font-size: 10px; font-weight: 700; color: #F47920; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 3px; }
+  .case-card-title { font-size: 13px; font-weight: 700; color: #003082; line-height: 1.3; margin-bottom: 4px; }
+  .case-card-desc { font-size: 12px; color: #555; line-height: 1.4; }
+  .cta-btn { display: inline-flex; align-items: center; gap: 6px; margin-top: 10px; background: #F47920; color: #fff; font-family: 'Source Sans 3', sans-serif; font-size: 13px; font-weight: 700; padding: 8px 16px; border-radius: 20px; text-decoration: none; transition: background 0.2s; }
+  .cta-btn:hover { background: #e06810; }
+  .quick-replies { display: flex; flex-wrap: wrap; gap: 7px; padding: 0 16px 10px 58px; flex-shrink: 0; }
+  .qr-btn { background: #fff; border: 1.5px solid #003082; color: #003082; font-family: 'Source Sans 3', sans-serif; font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: 20px; cursor: pointer; transition: all 0.2s; }
+  .qr-btn:hover { background: #003082; color: #fff; }
+  .typing { display: flex; gap: 10px; align-items: center; }
+  .typing .dots { display: flex; gap: 4px; padding: 12px 15px; background: #f0f4fb; border-radius: 14px; border-bottom-left-radius: 4px; }
+  .typing .dot { width: 7px; height: 7px; border-radius: 50%; background: #003082; animation: bounce 1.2s infinite; }
+  .typing .dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing .dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-6px); } }
+  .chat-input-area { border-top: 1px solid #eee; padding: 10px 14px; display: flex; gap: 10px; align-items: flex-end; background: #fff; flex-shrink: 0; }
+  .chat-input { flex: 1; border: 1.5px solid #dde2eb; border-radius: 22px; padding: 9px 15px; font-family: 'Source Sans 3', sans-serif; font-size: 14px; color: #1a1a1a; resize: none; outline: none; line-height: 1.4; max-height: 100px; transition: border-color 0.2s; }
+  .chat-input:focus { border-color: #F47920; }
+  .chat-input::placeholder { color: #aaa; }
+  .send-btn { width: 38px; height: 38px; background: #F47920; border: none; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: background 0.2s, transform 0.1s; }
+  .send-btn:hover { background: #e06810; }
+  .send-btn:active { transform: scale(0.93); }
+  .send-btn svg { width: 17px; height: 17px; fill: #fff; }
+  .powered { text-align: center; font-size: 10px; color: #bbb; padding: 3px 0 7px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+<div class="chat-wrapper">
+  <div class="chat-header">
+    <div class="logo">
+      <span class="nl">NL</span><span class="werkt">werkt</span><span class="aan">aan</span><span class="werk2">werk</span>
+    </div>
+    <div class="header-right">
+      <div class="badge">HR Wegenwacht</div>
+      <div class="status"><div class="status-dot"></div> Online</div>
+    </div>
+  </div>
+  <div class="chat-messages" id="messages">
+    <div class="msg bot">
+      <div class="avatar bot">HR</div>
+      <div class="bubble">Hoi! 👋 Ik ben de <strong>HR Wegenwacht</strong> van NLwerktaanwerk.<br><br>Ik help je kosteloos met personeels- en arbeidsmarktvragen. Waar loop jij op dit moment tegenaan?</div>
+    </div>
+  </div>
+  <div class="quick-replies" id="quick-replies">
+    <button class="qr-btn" onclick="sendQuick('Ik kan geen goede mensen vinden')">Personeel vinden</button>
+    <button class="qr-btn" onclick="sendQuick('Hoe houd ik medewerkers vast?')">Behoud medewerkers</button>
+    <button class="qr-btn" onclick="sendQuick('Hoe organiseer ik mijn werk anders?')">Anders organiseren</button>
+    <button class="qr-btn" onclick="sendQuick('Doe de Inspiratiescan')">Inspiratiescan</button>
+  </div>
+  <div class="chat-input-area">
+    <textarea class="chat-input" id="userInput" placeholder="Typ je vraag hier..." rows="1" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+    <button class="send-btn" onclick="sendMessage()">
+      <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2z"/></svg>
+    </button>
+  </div>
+  <div class="powered">Mogelijk gemaakt door NLwerktaanwerk · kosteloos advies voor werkgevers</div>
+</div>
+<script>
+const CASES = [
+  {
+    trigger: ['mensen vinden', 'personeel', 'vacature', 'medewerkers vinden', 'monteur', 'technici', 'kandidaten'],
+    title: 'Two Brothers Hotels: inclusief ondernemen werkt',
+    desc: 'Door jongeren met autisme een kans te geven, vulden ze moeilijke vacatures én kregen ze loyale medewerkers.',
+    img: 'https://content.prod.websites.vno-ncw.totalservices.io/app/uploads/sites/9/2026/02/Two-Brothers-Maurice-Brancart-scaled.jpg',
+    url: 'https://www.nlwerktaanwerk.nl/artikelen/horecaplek-voor-jongeren-met-autisme-bij-two-brothers-hotels',
+    label: 'Inspirerend voorbeeld'
+  }
+];
+
+const SYSTEM_PROMPT = `Je bent de HR Wegenwacht van NLwerktaanwerk. NLwerktaanwerk is een initiatief van VNO-NCW en MKB-Nederland en helpt werkgevers kosteloos bij personeels- en arbeidsmarktvraagstukken.
+
+Je communiceert toegankelijk, praktisch en oplossingsgericht. Je spreekt werkgevers aan alsof je een ervaren adviseur bent die meedenkt vanuit de praktijk.
+
+Gebruik regelmatig termen als: toekomstbestendig werken, personeel vinden en behouden, arbeidsproductiviteit, strategische personeelsplanning, zij-instroom, ontwikkelen van medewerkers.
+
+Werkgevers liggen wakker van: personeel vinden, productiviteit verhogen, kennis behouden, toekomstbestendig blijven. Begin altijd vanuit het vraagstuk van de werkgever.
+
+Werkwijze:
+1. Vat de vraag kort samen.
+2. Stel maximaal twee verdiepende vragen.
+3. Geef praktische oplossingsrichtingen.
+4. Benoem concrete voorbeelden waar relevant.
+5. Stuur aan op contact met een regisseur van NLwerktaanwerk.
+
+Schrijf kort, duidelijk en zonder vakjargon. Gebruik korte alinea's geschikt voor een chatvenster.
+Sluit ALTIJD af met deze exacte tekst op een nieuwe regel: ##CTA##`;
+
+let conversationHistory = [];
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 100) + 'px';
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+
+function sendQuick(text) {
+  document.getElementById('userInput').value = text;
+  sendMessage();
+}
+
+function findCase(text) {
+  const lower = text.toLowerCase();
+  return CASES.find(c => c.trigger.some(t => lower.includes(t)));
+}
+
+function addMessage(role, text, userText) {
+  const messages = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  const avatar = document.createElement('div');
+  avatar.className = `avatar ${role}`;
+  avatar.textContent = role === 'bot' ? 'HR' : 'U';
+  const bubble = document.createElement('div');
+  bubble.className = 'bubble';
+  if (role === 'bot') {
+    let clean = text.replace(/##CTA##/g, '').trim();
+    clean = clean
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/\n/g, '<br>')
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    bubble.innerHTML = clean;
+    const cta = document.createElement('a');
+    cta.href = 'https://www.nlwerktaanwerk.nl/helpdesk';
+    cta.target = '_blank';
+    cta.className = 'cta-btn';
+    cta.innerHTML = '📅 Maak een afspraak met een regisseur';
+    bubble.appendChild(document.createElement('br'));
+    bubble.appendChild(cta);
+    if (userText) {
+      const match = findCase(userText);
+      if (match) {
+        const card = document.createElement('a');
+        card.href = match.url;
+        card.target = '_blank';
+        card.className = 'case-card';
+        card.innerHTML = `<img src="${match.img}" alt="${match.title}" onerror="this.style.display='none'"><div class="case-card-body"><div class="case-card-label">${match.label}</div><div class="case-card-title">${match.title}</div><div class="case-card-desc">${match.desc}</div></div>`;
+        bubble.appendChild(card);
+      }
+    }
+  } else {
+    bubble.textContent = text;
+  }
+  div.appendChild(avatar);
+  div.appendChild(bubble);
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function showTyping() {
+  const messages = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.className = 'typing';
+  div.id = 'typing-indicator';
+  div.innerHTML = `<div class="avatar bot">HR</div><div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+  messages.appendChild(div);
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function removeTyping() {
+  const el = document.getElementById('typing-indicator');
+  if (el) el.remove();
+}
+
+async function sendMessage() {
+  const input = document.getElementById('userInput');
+  const text = input.value.trim();
+  if (!text) return;
+  document.getElementById('quick-replies').style.display = 'none';
+  addMessage('user', text);
+  input.value = '';
+  input.style.height = 'auto';
+  conversationHistory.push({ role: 'user', content: text });
+  showTyping();
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ messages: conversationHistory, system: SYSTEM_PROMPT })
+    });
+    const data = await response.json();
+    removeTyping();
+    const reply = data.reply || 'Er ging iets mis. Probeer het opnieuw.';
+    conversationHistory.push({ role: 'assistant', content: reply });
+    addMessage('bot', reply, text);
+  } catch (err) {
+    removeTyping();
+    addMessage('bot', 'Sorry, er ging iets mis. Neem contact op via nlwerktaanwerk.nl.', text);
+  }
+}
+</script>
+</body>
+</html>
